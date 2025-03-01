@@ -11,6 +11,7 @@ def connectDb() -> sqlite3.Connection:
 
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS books(id INTEGER PRIMARY KEY, name TEXT, category TEXT, num_pages INT, file_size FLOAT, file_path TEXT)")
+    cursor.close()
 
     return conn
 

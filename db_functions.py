@@ -74,6 +74,8 @@ def managePDFDatabase(conn:sqlite3.Connection) -> None:
     Args:
         conn (sqlite3.Connection): An active connection with the local database.
     """
+    print("[DEBUG] Checking database...")
+    
     rootPath = getConfigValue("Database", "root_path")
 
     #Check if root path exists
