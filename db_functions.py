@@ -63,7 +63,7 @@ def searchNewFiles(path:str, conn:sqlite3.Connection, pathSet:set) -> None:
                 print(f"[DEBUG] New .pdf file found: {file}")
                 fileName, fileCategory, numberOfPages, fileSize = getFileInfo(currentPath)
                 addFileToDB(fileName, fileCategory, numberOfPages, fileSize, currentPath, conn)
-        
+                
         #If the current path is a directory, we'll search within it
         elif os.path.isdir(currentPath):
             searchNewFiles(currentPath, conn, pathSet)
@@ -92,5 +92,6 @@ def managePDFDatabase(conn:sqlite3.Connection) -> None:
     
     #Search for new files to add to the database
     searchNewFiles(rootPath, conn, set(getPathArray(conn)))
+    
 
         

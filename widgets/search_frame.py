@@ -5,7 +5,19 @@ from widgets.database_table import categoryFilter, nameFilter, pressEnter
 from get_functions import *
 
 
-def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window=Tk) -> Frame:
+def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window:Tk, searchValue=customtkinter.StringVar) -> Frame:
+    """Frame containing the search bar, the search button and a dropdown menu containing all the existent categories.
+
+    Args:
+        conn (sqlite3.Connection): An active connection with the local database.
+        db_table (ttk.Treeview): Table displaying information extracted from the local database.
+        window (_type_, optional): Program window where the Frame will be placed.
+        searchValue (customtkinter.StringVar): Value being searched by the user.
+
+    Returns:
+        Frame: A container widget containing the search bar, the search button and a dropdown menu.
+    """
+
     #Seach frame
     searchFrame = customtkinter.CTkFrame(window,
                                          fg_color="transparent"
@@ -23,7 +35,7 @@ def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window=Tk) ->
     #Search button
     searchButton = customtkinter.CTkButton(searchFrame, 
                                            text="Pesquisar",
-                                           command=lambda: nameFilter(conn, db_table, searchBar.get()))
+                                           command=lambda: nameFilter(conn, db_table, searchBar.get(), searchValue))
     searchButton.grid(row=0, column=1, padx=(10,0))
 
     #Category filter
@@ -37,7 +49,7 @@ def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window=Tk) ->
     
 
     #Make it so if the user presses "enter", it will also search what is written on the search bar
-    searchBar.bind("<Return>", lambda event: pressEnter(event, conn, db_table, searchBar.get()))
+    searchBar.bind("<Return>", lambda event: pressEnter(event, conn, db_table, searchBar.get(), searchValue))
 
 
     return searchFrame

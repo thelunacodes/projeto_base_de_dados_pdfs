@@ -64,7 +64,6 @@ def getFileInfo(path:str) -> list:
         with open(path, "rb") as pdfFile: 
             pdf.LoadFromFile(path)
             numberOfPages = pdf.Pages.Count # num_pages
-            print(f"Pages: {numberOfPages}")
     except Exception:
         print(traceback.format_exc())
         
@@ -72,12 +71,22 @@ def getFileInfo(path:str) -> list:
 
     return fileName, fileCategory, numberOfPages, fileSize
 
-def getDatabaseEntries(conn:sqlite3.Connection, orderBy:str="id") -> list:
+def getDatabaseEntries(conn:sqlite3.Connection, orderBy:str="id", containing:str=None) -> list:
+    """Retrieves all the entries from the local database.
+
+    Args:
+        conn (sqlite3.Connection): An active connection with the local database.
+        orderBy (str, optional): Criteria by which the data will be organized in the table. Defaults to "id".
+
+    Returns:
+        list: List containing all the entries from the local database.
+    """
+
     if orderBy not in ["id", "name", "category", "num_pages", "file_size", "file_path"]:
         return []
     
-    sql = f"SELECT * FROM books ORDER BY {orderBy};"
-
+    sql = f"SELECT * FROM books {f"WHERE name LIKE '%{containing}%'" if containing != None else ""} ORDER BY {orderBy};"
+    
     try:
         cursor = conn.cursor()
         cursor.execute(sql)
@@ -91,6 +100,14 @@ def getDatabaseEntries(conn:sqlite3.Connection, orderBy:str="id") -> list:
     return entryList
 
 def getCategories(conn:sqlite3.Connection) -> list:
+    """Retrieves all the distinct categories from the local database. 
+
+    Args:
+        conn (sqlite3.Connection): An active connection with the local database.
+
+    Returns:
+        list: List containing all the categories registered in the local database.
+    """
     sql = f"SELECT DISTINCT category FROM books;"
 
     try:
@@ -106,6 +123,16 @@ def getCategories(conn:sqlite3.Connection) -> list:
     return categoryList
 
 def getEntriesByCategory(conn:sqlite3.Connection, category:str)->list:
+    """Retrieves all the entries from a specific category.
+
+    Args:
+        conn (sqlite3.Connection): An active connection with the database.
+        category (str): The category of the entries to retrieve from the local database.
+
+    Returns:
+        list: List containing all the database entries from a specific category.
+    """
+
     sql = f"SELECT * FROM books WHERE category=?"
 
     try:
@@ -120,17 +147,73 @@ def getEntriesByCategory(conn:sqlite3.Connection, category:str)->list:
     entryList = [list(entry) for entry in result]
     return entryList
 
-def getEntriesByName(conn:sqlite3.Connection, name:str) -> list:
-    sql = f"SELECT * FROM books WHERE name LIKE '%{name}%';"
+def getId(entryArray:list) -> str:
+    """Retrieves the "id" value from an array containing information of a specific entry of the local database
 
-    try:
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        result = cursor.fetchall()
-    except Exception:
-        print(traceback.format_exc())
-    finally:
-        cursor.close()
-    
-    entryList = [list(entry) for entry in result]
-    return entryList
+    Args:
+        entryArray (list): Array containing information of a specific entry of the array.
+
+    Returns:
+        str: The "id" value.
+    """
+    return entryArray[0]
+
+def getName(entryArray:list) -> str:
+    """Retrieves the "name" value from an array containing information of a specific entry of the local database
+
+    Args:
+        entryArray (list): Array containing information of a specific entry of the array.
+
+    Returns:
+        str: The "name" value.
+    """
+
+    return entryArray[1]
+
+def getCategory(entryArray:list) -> str:
+    """Retrieves the "category" value from an array containing information of a specific entry of the local database
+
+    Args:
+        entryArray (list): Array containing information of a specific entry of the array.
+
+    Returns:
+        str: The "category" value.
+    """
+
+    return entryArray[2]
+
+def getNumPag(entryArray:list) -> str:
+    """Retrieves the "num_pag" value from an array containing information of a specific entry of the local database
+
+    Args:
+        entryArray (list): Array containing information of a specific entry of the array.
+
+    Returns:
+        str: The "num_pag" value.
+    """
+
+    return entryArray[3]
+
+def getFileSize(entryArray:list) -> str:
+    """Retrieves the "file_size" value from an array containing information of a specific entry of the local database
+
+    Args:
+        entryArray (list): Array containing information of a specific entry of the array.
+
+    Returns:
+        str: The "file_size" value.
+    """
+
+    return entryArray[4]
+
+def getFilePath(entryArray:list) -> str:
+    """Retrieves the "num_pag" value from an array containing information of a specific entry of the local database
+
+    Args:
+        entryArray (list): Array containing information of a specific entry of the array.
+
+    Returns:
+        str: The "num_pag" value.
+    """
+
+    return entryArray[5]
