@@ -1,14 +1,15 @@
-import configparser, os
+import configparser, os, customtkinter
+from tkinter.filedialog import askdirectory
+from tkinter import messagebox
 
-def setRootFolder() -> None:
+
+def setRootFolder(window:customtkinter.CTk) -> None:
     """Changes the root folder in the configuration file (settings.ini)
     """
-    
-    while True:
-        newRootPath = input("Insert new a root path: ")
-        if os.path.exists(newRootPath) and os.path.isdir(newRootPath):
-            break
-        print("[DEBUG] The root path has to be a folder!")
+    messagebox.showwarning(title="Atenção!", message="Pasta raiz não encontrada!")
+
+    newRootPath = askdirectory(title="Selecione as pastas contendo os arquivos .pdf")
+    window.after(0, lambda:window.wm_state("zoomed")) #Maximize window
 
     config = configparser.ConfigParser()
     config.read('settings.ini')

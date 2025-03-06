@@ -1,6 +1,8 @@
-import sqlite3, traceback, os
-from get_functions import *
+import sqlite3, traceback, os, threading
+from get_functions import getFileInfo, getConfigValue, getPathArray
 from set_functions import *
+from widgets.table_handler import emptyTable
+from tkinter import ttk
 
 def addFileToDB(name:str, category:str, numPages:int, fileSize:float, path:str, conn:sqlite3.Connection) -> None:
     """Adds the .pdf file to the local database.
@@ -63,16 +65,31 @@ def searchNewFiles(path:str, conn:sqlite3.Connection, pathSet:set) -> None:
                 print(f"[DEBUG] New .pdf file found: {file}")
                 fileName, fileCategory, numberOfPages, fileSize = getFileInfo(currentPath)
                 addFileToDB(fileName, fileCategory, numberOfPages, fileSize, currentPath, conn)
-                
+
         #If the current path is a directory, we'll search within it
         elif os.path.isdir(currentPath):
             searchNewFiles(currentPath, conn, pathSet)
 
-def managePDFDatabase(conn:sqlite3.Connection) -> None:
+def removeAllFilesFromDB(conn:sqlite3.Connection) -> None:
+    sql = "DELETE FROM books"
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql)
+    except Exception:
+        print(traceback.format_exc())
+    finally:
+        conn.commit()
+        cursor.close()
+        
+
+def managePDFDatabase(conn:sqlite3.Connection, window:customtkinter.CTk, table:ttk.Treeview) -> None:
     """Function responsible for managing the local database. It will do things, such as, checking if the root path is valid, if there's any new files to add to the database or if any files were deleted during the program runtime.
 
     Args:
         conn (sqlite3.Connection): An active connection with the local database.
+        window (customtkinter.CTk): Program window where the Frame will be placed.
+        table (ttk.Treeview): Table displaying information from the local database.
     """
     print("[DEBUG] Checking database...")
     
@@ -81,7 +98,11 @@ def managePDFDatabase(conn:sqlite3.Connection) -> None:
     #Check if root path exists
     if not os.path.exists(rootPath):
         print("[DEBUG] No root path found!")
-        setRootFolder()
+        setRootFolder(window)
+
+        removeAllFilesFromDB(conn)
+        emptyTable(table)
+
         rootPath = getConfigValue("Database", "root_path")
 
     #Check if all the files registered in the local database still exist
@@ -92,6 +113,4 @@ def managePDFDatabase(conn:sqlite3.Connection) -> None:
     
     #Search for new files to add to the database
     searchNewFiles(rootPath, conn, set(getPathArray(conn)))
-    
-
         

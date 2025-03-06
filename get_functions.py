@@ -1,6 +1,6 @@
-import sqlite3, traceback, os, configparser, fitz
+import sqlite3, traceback, os, configparser, fitz, customtkinter
 from spire.pdf.common import *
-from spire.pdf import *
+from spire.pdf import PdfDocument
 
 def getConfigValue(section:str, key:str) -> str:
     """Retrieves a value from the configuration file (settings.ini). 
@@ -43,6 +43,16 @@ def getPathArray(conn:sqlite3.Connection) -> list:
 
     return pathArray
 
+def getSizeConversion(bytesValue:int) -> str:    
+    kiloValue = bytesValue / 1024
+    if kiloValue >= 1024:
+        megaValue = bytesValue / (1024 * 1024)
+        if megaValue >= 1024:
+            gigaValue = bytesValue / (1024 * 1024 * 1024)
+            return f"{gigaValue:.1f} GB"
+        return f"{megaValue:.1f} MB"
+    return f"{kiloValue:.1f} KB"
+
 def getFileInfo(path:str) -> list:
     """Collects information about a specific .pdf file located at a certain file path.
 
@@ -71,11 +81,13 @@ def getFileInfo(path:str) -> list:
 
     return fileName, fileCategory, numberOfPages, fileSize
 
-def getDatabaseEntries(conn:sqlite3.Connection, orderBy:str="id", containing:str=None) -> list:
+def getDatabaseEntries(conn:sqlite3.Connection, isDescending:customtkinter.BooleanVar, category:str, orderBy:str="id", containing:str=None) -> list:
     """Retrieves all the entries from the local database.
 
     Args:
         conn (sqlite3.Connection): An active connection with the local database.
+        isDescending (customtkinter.BooleanVar): If the entries will be ordered in descending order, or not.
+        category (str): Category of the items being displayed on the table.
         orderBy (str, optional): Criteria by which the data will be organized in the table. Defaults to "id".
 
     Returns:
@@ -85,8 +97,9 @@ def getDatabaseEntries(conn:sqlite3.Connection, orderBy:str="id", containing:str
     if orderBy not in ["id", "name", "category", "num_pages", "file_size", "file_path"]:
         return []
     
-    sql = f"SELECT * FROM books {f"WHERE name LIKE '%{containing}%'" if containing != None else ""} ORDER BY {orderBy};"
-    
+    sql = f"SELECT * FROM books {f"WHERE name LIKE '%{containing}%'" if containing != None else ""} {f"{"AND" if containing != None and category != "Todas Categorias" else ""}"} {f"category='{category}'" if category != "Todas Categorias" else ""} ORDER BY {orderBy} {"DESC" if isDescending.get() else "ASC"};"
+    print(sql)
+
     try:
         cursor = conn.cursor()
         cursor.execute(sql)
@@ -146,74 +159,3 @@ def getEntriesByCategory(conn:sqlite3.Connection, category:str)->list:
     
     entryList = [list(entry) for entry in result]
     return entryList
-
-def getId(entryArray:list) -> str:
-    """Retrieves the "id" value from an array containing information of a specific entry of the local database
-
-    Args:
-        entryArray (list): Array containing information of a specific entry of the array.
-
-    Returns:
-        str: The "id" value.
-    """
-    return entryArray[0]
-
-def getName(entryArray:list) -> str:
-    """Retrieves the "name" value from an array containing information of a specific entry of the local database
-
-    Args:
-        entryArray (list): Array containing information of a specific entry of the array.
-
-    Returns:
-        str: The "name" value.
-    """
-
-    return entryArray[1]
-
-def getCategory(entryArray:list) -> str:
-    """Retrieves the "category" value from an array containing information of a specific entry of the local database
-
-    Args:
-        entryArray (list): Array containing information of a specific entry of the array.
-
-    Returns:
-        str: The "category" value.
-    """
-
-    return entryArray[2]
-
-def getNumPag(entryArray:list) -> str:
-    """Retrieves the "num_pag" value from an array containing information of a specific entry of the local database
-
-    Args:
-        entryArray (list): Array containing information of a specific entry of the array.
-
-    Returns:
-        str: The "num_pag" value.
-    """
-
-    return entryArray[3]
-
-def getFileSize(entryArray:list) -> str:
-    """Retrieves the "file_size" value from an array containing information of a specific entry of the local database
-
-    Args:
-        entryArray (list): Array containing information of a specific entry of the array.
-
-    Returns:
-        str: The "file_size" value.
-    """
-
-    return entryArray[4]
-
-def getFilePath(entryArray:list) -> str:
-    """Retrieves the "num_pag" value from an array containing information of a specific entry of the local database
-
-    Args:
-        entryArray (list): Array containing information of a specific entry of the array.
-
-    Returns:
-        str: The "num_pag" value.
-    """
-
-    return entryArray[5]
