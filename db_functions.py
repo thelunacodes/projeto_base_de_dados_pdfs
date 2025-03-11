@@ -1,7 +1,8 @@
-import sqlite3, traceback, os, threading
+import sqlite3, traceback, os
 from get_functions import getFileInfo, getConfigValue, getPathArray
 from set_functions import *
-from widgets.table_handler import emptyTable
+from widgets.search_frame import updateCategories, removeAllCategories
+from widgets.database_table import reloadTable
 from tkinter import ttk
 
 def addFileToDB(name:str, category:str, numPages:int, fileSize:float, path:str, conn:sqlite3.Connection) -> None:
@@ -82,6 +83,20 @@ def removeAllFilesFromDB(conn:sqlite3.Connection) -> None:
         conn.commit()
         cursor.close()
         
+def changeRootFolder(conn:sqlite3.Connection, window:customtkinter.CTk, table:ttk.Treeview, newRootPath:str):
+    searchVar = customtkinter.StringVar(value="")
+    isDescending = customtkinter.BooleanVar(value=False)
+    categoryValue = customtkinter.StringVar(value="Todas Categorias")
+
+    removeAllFilesFromDB(conn)
+
+    for row in table.get_children():
+        table.delete(row)
+
+    #Search for new files to add to the database
+    searchNewFiles(newRootPath, conn, set(getPathArray(conn)))
+
+    reloadTable(conn,table, searchVar, window, isDescending, categoryValue)
 
 def managePDFDatabase(conn:sqlite3.Connection, window:customtkinter.CTk, table:ttk.Treeview) -> None:
     """Function responsible for managing the local database. It will do things, such as, checking if the root path is valid, if there's any new files to add to the database or if any files were deleted during the program runtime.
@@ -100,8 +115,7 @@ def managePDFDatabase(conn:sqlite3.Connection, window:customtkinter.CTk, table:t
         print("[DEBUG] No root path found!")
         setRootFolder(window)
 
-        removeAllFilesFromDB(conn)
-        emptyTable(table)
+        changeRootFolder(conn, window, table, getConfigValue("Database", "root_path"))
 
         rootPath = getConfigValue("Database", "root_path")
 
@@ -113,4 +127,8 @@ def managePDFDatabase(conn:sqlite3.Connection, window:customtkinter.CTk, table:t
     
     #Search for new files to add to the database
     searchNewFiles(rootPath, conn, set(getPathArray(conn)))
+
+    updateCategories(conn)
+
+    
         

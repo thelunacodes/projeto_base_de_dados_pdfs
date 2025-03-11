@@ -2,9 +2,9 @@ import customtkinter, os, subprocess
 from tkinter import ttk, messagebox
 from widgets.table_handler import *
 from get_functions import getEntriesByCategory
-from db_functions import managePDFDatabase
+# from db_functions import managePDFDatabase
 
-def categoryFilter(conn:sqlite3.Connection, table:ttk.Treeview, category:str, categoryValue:customtkinter.StringVar, searchValue:customtkinter.StringVar, isDescending:customtkinter.BooleanVar) -> None:
+def categoryFilter(conn:sqlite3.Connection, table:ttk.Treeview, category:str, categoryValue:customtkinter.StringVar, searchValue:customtkinter.StringVar, isDescending:customtkinter.BooleanVar, searchBar:customtkinter.CTkEntry) -> None:
     """Retrieves all the entries from a specific category and displays them in the table.
 
     Args:
@@ -12,6 +12,7 @@ def categoryFilter(conn:sqlite3.Connection, table:ttk.Treeview, category:str, ca
         table (ttk.Treeview): Table displaying information from the local database.
         category (str): The category of the entries to retrieve from the local database.
         categoryValue (customtkinter.StringVar): StringVar used to track the current category being displayed.
+        searchBar (customtkinter.CTkButton): Search bar used by the user to fetch one (or more) entries on the local database.
     """
     
     #Retrieve the current category
@@ -35,7 +36,10 @@ def categoryFilter(conn:sqlite3.Connection, table:ttk.Treeview, category:str, ca
     for i, entry in enumerate(entryArray):
         table.insert("","end",values=(entry[0], entry[1], entry[2], entry[3], str(getSizeConversion(int(entry[4]))), entry[5] ))
 
-def reloadTable(conn:sqlite3.Connection, table:ttk.Treeview, searchVar:customtkinter.StringVar, window:customtkinter.CTk, isDescending:customtkinter.BooleanVar, categoryValue:customtkinter.StringVar, runManageDatabase:bool=False):
+    if category == "Todas Categorias":
+        searchBar.delete(0, "end")
+
+def reloadTable(conn:sqlite3.Connection, table:ttk.Treeview, searchVar:customtkinter.StringVar, window:customtkinter.CTk, isDescending:customtkinter.BooleanVar, categoryValue:customtkinter.StringVar):
     """Adds new items to the table, and removes those that no longer exist.
 
     Args:
@@ -48,10 +52,6 @@ def reloadTable(conn:sqlite3.Connection, table:ttk.Treeview, searchVar:customtki
     """
 
     print("[DEBUG] Reloading tables...")
-
-    #Search new files, check if the root path still exists, and remove items that no longer exist (if needed)
-    if runManageDatabase:
-        managePDFDatabase(conn, window, table)
 
     #Get entries
     entryArray = getDatabaseEntries(conn, isDescending, categoryValue.get(), containing=searchVar.get())
@@ -137,7 +137,7 @@ def pressEnter(event, conn:sqlite3.Connection, table:ttk.Treeview, name:str, sea
         isDescending (customtkinter.BooleanVar): If the entries will be ordered in descending order, or not.
         categoryValue (customtkinter.StringVar): StringVar used to track the current category being displayed.
     """
-    
+
     #Set isDescending value to False
     isDescending.set(False)
 
@@ -188,5 +188,7 @@ def getDatabaseTable(conn:sqlite3.Connection, window:customtkinter.CTk, searchVa
 
     #If user clicks on one items on the table, the file will be opened
     db_table.bind("<Double-1>", lambda event:openFileByClick(event, conn, db_table, searchValue, window))
+
+    
 
     return db_table

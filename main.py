@@ -1,9 +1,11 @@
 from connect_db import *
 from db_functions import getConfigValue, managePDFDatabase
-import customtkinter, os
+import customtkinter
 from widgets.database_table import getDatabaseTable, reloadTable
 from widgets.search_frame import getSearchFrame
 from widgets.settings_window import openSettingsWindow
+
+customtkinter.set_appearance_mode(getConfigValue("Interface", "window_theme"))
 
 conn = connectDb() #Active connection with the local database
 ROOT_FOLDER = getConfigValue("Database", "root_path") #Get root folder
@@ -15,11 +17,9 @@ window.after(0, lambda:window.wm_state("zoomed")) #Maximize window
 searchValue = customtkinter.StringVar() #Stores the value on the search bar
 isDescending = customtkinter.BooleanVar(value=False) #If the entries will be ordered in descending order, or not
 displayCategory = customtkinter.StringVar(value="Todas Categorias")
-rowFontSize = customtkinter.IntVar() #Treeview's row font size
-headerFontSize = customtkinter.IntVar() #Treeview's header font size
-currentTheme = customtkinter.StringVar(value="system") #Current window theme (system, dark or light)
 
-customtkinter.set_appearance_mode(currentTheme.get())
+settingsIsOpen = customtkinter.BooleanVar(value=False)
+
 
 #Database Table
 dbTable = getDatabaseTable(conn, window, searchValue, isDescending, displayCategory)
@@ -39,18 +39,19 @@ dbTable.pack(pady=(30,0),
               fill='both',
               )
 
-bottomFrame = customtkinter.CTkFrame(window)
+bottomFrame = customtkinter.CTkFrame(window,
+                                     fg_color="transparent")
 
 configButton = customtkinter.CTkButton(bottomFrame,
                              text="Configurações",
-                             command=lambda:openSettingsWindow(window))
+                             command=lambda:openSettingsWindow(conn, window, dbTable, settingsIsOpen))
 configButton.grid(row=0,
                   column=0,
                   sticky="e")
 
 reloadButton = customtkinter.CTkButton(bottomFrame,
                                         text="Recarregar",
-                                        command=lambda:reloadTable(conn, dbTable, searchValue, window, isDescending, displayCategory, True))
+                                        command=lambda:reloadTable(conn, dbTable, searchValue, window, isDescending, displayCategory))
 reloadButton.grid(row=0,
                     column=1,
                     padx=(20,0),

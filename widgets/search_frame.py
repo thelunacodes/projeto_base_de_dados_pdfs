@@ -3,32 +3,32 @@ from tkinter import ttk
 from widgets.database_table import categoryFilter, nameFilter, pressEnter
 from get_functions import *
 
-def updateCategories(conn:sqlite3.Connection, categoryOptionMenu:customtkinter.CTkOptionMenu) -> None:
+def removeAllCategories():
+    categoryOptions.configure(values=[])
+
+def updateCategories(conn:sqlite3.Connection) -> None:
     """_summary_
 
     Args:
         conn (sqlite3.Connection): An active connection with the local database.
-        categoryOptionMenu (customtkinter.CTkOptionMenu): Option Menu used to select the current category being displayed in the table.  
     """
-    currentCategories = categoryOptionMenu.cget("values")
+    currentCategories = list(categoryOptions.cget("values"))
     allCategoriesList = getCategories(conn)
 
-    #Remove old categories
-    for oldCategory in currentCategories:
-        if oldCategory in allCategoriesList:
-            continue
-        currentCategories.remove(oldCategory)
+    #Remove temporarily the "Todas Categorias" (all categories) option
+    currentCategories.remove("Todas Categorias")
+
+    updatedCategories = [cat for cat in currentCategories if cat in allCategoriesList]
 
     #Add new categories 
     for newCategory in allCategoriesList:
-        if newCategory in currentCategories:
-            continue
-        currentCategories.append(newCategory)
+        if newCategory not in updatedCategories:
+            updatedCategories.append(newCategory)
 
-    currentCategories = sorted(currentCategories)
-    currentCategories.insert(0,"Todas Categorias")
+    updatedCategories.sort()
+    updatedCategories.insert(0, "Todas Categorias")
 
-    categoryOptionMenu.configure(values=currentCategories)
+    categoryOptions.configure(values=updatedCategories)
 
 def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window:customtkinter.CTk, searchValue:customtkinter.StringVar, isDescending:customtkinter.BooleanVar, categoryValue:customtkinter.StringVar) -> customtkinter.CTkFrame:
     """Frame containing the search bar, the search button and a dropdown menu containing all the existent categories.
@@ -54,7 +54,6 @@ def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window:custom
     #Search bar 
     searchBar = customtkinter.CTkEntry(searchFrame,
                                         placeholder_text="Insira o nome do livro...",
-                                        textvariable=searchValue,
                                         width=300
                                         )
     searchBar.grid(row=0, column=0)
@@ -68,9 +67,11 @@ def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window:custom
     #Category filter
     categoryList = sorted(getCategories(conn))
     categoryList.insert(0,"Todas Categorias")
+    
+    global categoryOptions
     categoryOptions = customtkinter.CTkOptionMenu(searchFrame,
                                                   values=categoryList,
-                                                  command=lambda category:categoryFilter(conn, db_table, category, categoryValue, searchValue, isDescending))
+                                                  command=lambda category:categoryFilter(conn, db_table, category, categoryValue, searchValue, isDescending, searchBar))
     categoryOptions.grid(row=0, column=2, sticky="e")
 
     #Make it so if the user presses "enter", it will also search what is written on the search bar
@@ -78,7 +79,7 @@ def getSearchFrame(conn:sqlite3.Connection, db_table:ttk.Treeview, window:custom
 
     def categoryCheckLoop() -> None:
         print("[DEBUG] Updating category list...")
-        updateCategories(conn, categoryOptions)
+        updateCategories(conn)
         searchFrame.after(5000, categoryCheckLoop) #Will check again after 5000 ms (5 seconds)
 
     categoryCheckLoop()

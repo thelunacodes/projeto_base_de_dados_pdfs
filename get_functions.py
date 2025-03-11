@@ -76,7 +76,7 @@ def getFileInfo(path:str) -> list:
             numberOfPages = pdf.Pages.Count # num_pages
     except Exception:
         print(traceback.format_exc())
-        
+
     fileSize = os.path.getsize(path) #file_size
 
     return fileName, fileCategory, numberOfPages, fileSize
@@ -127,6 +127,7 @@ def getCategories(conn:sqlite3.Connection) -> list:
         cursor = conn.cursor()
         cursor.execute(sql)
         result = list(cursor.fetchall())
+        
     except Exception:
         print(traceback.format_exc())
     finally:
