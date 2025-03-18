@@ -26,7 +26,7 @@ def fillTable(conn:sqlite3.Connection, table:ttk.Treeview, isDescending:customtk
     entryArray = getDatabaseEntries(conn, isDescending, categoryValue.get(), orderBy, searchValue)
 
     for i, entry in enumerate(entryArray):
-        table.insert("","end",values=(entry[0], entry[1], entry[2], entry[3], str(getSizeConversion(int(entry[4]))), entry[5]))
+        table.insert("","end",values=(entry[0], entry[1], entry[2], str(getSizeConversion(int(entry[3]))), entry[4]))
     
 def orderByHeader(conn:sqlite3.Connection, table:ttk.Treeview, headerName:str, searchValue:customtkinter.StringVar, isDescending:customtkinter.BooleanVar, categoryValue:customtkinter.StringVar):
     """Sorts the items in the table based on which header the user clicked on.

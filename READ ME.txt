@@ -1,0 +1,40 @@
+[PT-BR]
+
+--Sobre o programa--
+
+Esse programa permite a visualização, acesso e filtragem de arquivos .pdf armazenados em uma pasta escolhida pelo próprio usuário.
+
+Para utilizar o programa, é necessário ter o Python instalado na máquina.
+
+--Adicionar arquivos--
+
+Os arquivos são adicionados automaticamente por meio de uma busca que analisa todas as pastas, a partir de uma pasta raiz (a pasta principal, que contém todos os arquivos e outras pastas).
+
+Obs: Se sua pasta raiz possuir uma grande quantidade de arquivos, o programa poderá parar de responder temporariamente. Por favor, seja paciente e aguarde.
+
+--Categorias--
+
+A categoria do arquivo .pdf é definida pelo nome das pasta onde o arquivo é armazenado. Por exemplo, todos os arquivos dentro da pasta 'Educação' serão da categoria 'Educação'. 
+
+Arquivos na pasta raiz não terão uma categoria. 
+
+
+[EN]
+
+--About the program--
+
+This program allows the visualization, access and filtering of .pdf files stored in a folder chosen by the user.
+
+To use the program, you need to have Python installed on your machine.
+
+--Adding files--
+
+The files are added automatically through a search process that analyzes all folders, starting from a root folder (the main folder, containing all the files and other folders).
+
+Obs: If your root folder contains a large number of files, the program may stop responding temporarily. Please, be patient and wait.
+
+--Categories--
+
+The category of a .pdf file is defined by the name of the folder in which it is stored. For example, all files within the "Education" folder will belong to the "Education" category.
+
+Files stored in the root folder won't have a category.

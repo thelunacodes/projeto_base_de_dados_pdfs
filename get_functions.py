@@ -1,6 +1,4 @@
-import sqlite3, traceback, os, configparser, fitz, customtkinter
-from spire.pdf.common import *
-from spire.pdf import PdfDocument
+import sqlite3, traceback, os, configparser, customtkinter
 
 def getConfigValue(section:str, key:str) -> str:
     """Retrieves a value from the configuration file (settings.ini). 
@@ -69,17 +67,9 @@ def getFileInfo(path:str) -> list:
     else:
         fileCategory = os.path.basename(os.path.dirname(path)) #category
 
-    try:
-        pdf = PdfDocument()
-        with open(path, "rb") as pdfFile: 
-            pdf.LoadFromFile(path)
-            numberOfPages = pdf.Pages.Count # num_pages
-    except Exception:
-        print(traceback.format_exc())
-
     fileSize = os.path.getsize(path) #file_size
 
-    return fileName, fileCategory, numberOfPages, fileSize
+    return fileName, fileCategory, fileSize
 
 def getDatabaseEntries(conn:sqlite3.Connection, isDescending:customtkinter.BooleanVar, category:str, orderBy:str="id", containing:str=None) -> list:
     """Retrieves all the entries from the local database.
@@ -94,7 +84,7 @@ def getDatabaseEntries(conn:sqlite3.Connection, isDescending:customtkinter.Boole
         list: List containing all the entries from the local database.
     """
 
-    if orderBy not in ["id", "name", "category", "num_pages", "file_size", "file_path"]:
+    if orderBy not in ["id", "name", "category", "file_size", "file_path"]:
         return []
     
     sql = f"SELECT * FROM books {f"WHERE name LIKE '%{containing}%'" if containing != None else ""} {f"{"AND" if containing != None and category != "Todas Categorias" else ""}"} {f"category='{category}'" if category != "Todas Categorias" else ""} ORDER BY {orderBy} {"DESC" if isDescending.get() else "ASC"};"

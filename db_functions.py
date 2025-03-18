@@ -5,23 +5,22 @@ from widgets.search_frame import updateCategories, removeAllCategories
 from widgets.database_table import reloadTable
 from tkinter import ttk
 
-def addFileToDB(name:str, category:str, numPages:int, fileSize:float, path:str, conn:sqlite3.Connection) -> None:
+def addFileToDB(name:str, category:str, fileSize:float, path:str, conn:sqlite3.Connection) -> None:
     """Adds the .pdf file to the local database.
 
     Args:
         name (str): Name of the file.
         category (str): Category of the file.
-        numPages (int): Number of pages in the file.
         fileSize (float): Size of the file (in bytes).
         path (str): Path where the file is located.
         conn (sqlite3.Connection): An active connection with the database
     """
 
-    sql = "INSERT INTO books (name, category, num_pages, file_size, file_path) VALUES (?, ?, ?, ?, ?);"
+    sql = "INSERT INTO books (name, category, file_size, file_path) VALUES (?, ?, ?, ?);"
 
     cursor = conn.cursor()
     try:
-        cursor.execute(sql, (name, category, numPages, fileSize, path))
+        cursor.execute(sql, (name, category, fileSize, path))
     except Exception:
         print(traceback.format_exc())
     finally:
@@ -59,13 +58,12 @@ def searchNewFiles(path:str, conn:sqlite3.Connection, pathSet:set) -> None:
         currentPath = os.path.join(path, file)
 
         #Check if the current path is a .pdf file
-        if os.path.isfile(currentPath) and currentPath.endswith(".pdf"): 
-
+        if os.path.isfile(currentPath) and (currentPath.endswith(".pdf")):
             #If the .pdf file is not in the local database, it will be added
             if currentPath not in pathSet: 
                 print(f"[DEBUG] New .pdf file found: {file}")
-                fileName, fileCategory, numberOfPages, fileSize = getFileInfo(currentPath)
-                addFileToDB(fileName, fileCategory, numberOfPages, fileSize, currentPath, conn)
+                fileName, fileCategory, fileSize = getFileInfo(currentPath)
+                addFileToDB(fileName, fileCategory, fileSize, currentPath, conn)
 
         #If the current path is a directory, we'll search within it
         elif os.path.isdir(currentPath):

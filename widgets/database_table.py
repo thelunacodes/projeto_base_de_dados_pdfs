@@ -63,7 +63,7 @@ def reloadTable(conn:sqlite3.Connection, table:ttk.Treeview, searchVar:customtki
     for entry in entryArray:
         if str(entry[0]) in item_table_ids:
             continue
-        table.insert("","end",values=(entry[0], entry[1], entry[2], entry[3], str(getSizeConversion(int(entry[4]))), entry[5] ))
+        table.insert("","end",values=(entry[0], entry[1], entry[2], str(getSizeConversion(int(entry[3]))), entry[4] ))
 
     #Remove items that no longer exist in the local database
     item_db_ids = [str(entry[0]) for entry in entryArray]
@@ -88,8 +88,8 @@ def openFileByClick(event, conn:sqlite3.Connection, table:ttk.Treeview, searchVa
     selectedItem = list(table.item(table.selection(), "values"))
     
     #Check if the selected item is one of the table items
-    if len(selectedItem) == 6:
-        itemFilePath = selectedItem[5]
+    if len(selectedItem) == 5:
+        itemFilePath = selectedItem[4]
 
         #Check if file exists
         if os.path.exists(itemFilePath):
@@ -164,14 +164,13 @@ def getDatabaseTable(conn:sqlite3.Connection, window:customtkinter.CTk, searchVa
     """
 
     db_table = ttk.Treeview(window,
-                            columns=("id", "name", "category", "num_pages", "file_size", "file_path"),
+                            columns=("id", "name", "category", "file_size", "file_path"),
                             show="headings",)
 
     #Set column name
     db_table.heading("id", text="Id", command=lambda:orderByHeader(conn,db_table,"id", searchValue, isDescending, categoryValue))
     db_table.heading("name", text="Nome", command=lambda:orderByHeader(conn,db_table,"name", searchValue, isDescending, categoryValue))
     db_table.heading("category", text="Categoria", command=lambda:orderByHeader(conn,db_table,"category", searchValue, isDescending, categoryValue))
-    db_table.heading("num_pages", text="Páginas", command=lambda:orderByHeader(conn,db_table,"num_pages", searchValue, isDescending, categoryValue))
     db_table.heading("file_size", text="Tamanho", command=lambda:orderByHeader(conn,db_table,"file_size", searchValue, isDescending, categoryValue))
     db_table.heading("file_path", text="Caminho", command=lambda:orderByHeader(conn,db_table,"file_path", searchValue, isDescending, categoryValue))
 
@@ -179,7 +178,6 @@ def getDatabaseTable(conn:sqlite3.Connection, window:customtkinter.CTk, searchVa
     db_table.column("id", width=1, anchor="center")  
     db_table.column("name", width=200)  
     db_table.column("category", width=1, anchor="center")  
-    db_table.column("num_pages", width=1, anchor="center")  
     db_table.column("file_size", width=1, anchor="center")  
     db_table.column("file_path", width=700)
 

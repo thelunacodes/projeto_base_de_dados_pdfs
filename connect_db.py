@@ -10,7 +10,7 @@ def connectDb() -> sqlite3.Connection:
     conn = sqlite3.connect("book_pdf.db") #Local database of book pdfs
 
     cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS books(id INTEGER PRIMARY KEY, name TEXT, category TEXT, num_pages INT, file_size FLOAT, file_path TEXT)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS books(id INTEGER PRIMARY KEY, name TEXT, category TEXT, file_size FLOAT, file_path TEXT)")
     cursor.close()
 
     return conn
