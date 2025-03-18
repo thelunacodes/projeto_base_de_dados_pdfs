@@ -34,7 +34,7 @@ def categoryFilter(conn:sqlite3.Connection, table:ttk.Treeview, category:str, ca
 
     #Add entries to table
     for i, entry in enumerate(entryArray):
-        table.insert("","end",values=(entry[0], entry[1], entry[2], entry[3], str(getSizeConversion(int(entry[4]))), entry[5] ))
+        table.insert("","end",values=(entry[0], entry[1], entry[2], str(getSizeConversion(int(entry[3]))), entry[4] ))
 
     if category == "Todas Categorias":
         searchBar.delete(0, "end")
