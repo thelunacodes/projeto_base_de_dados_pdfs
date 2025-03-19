@@ -6,6 +6,10 @@ Esse programa permite a visualização, acesso e filtragem de arquivos .pdf arma
 
 Para utilizar o programa, é necessário ter o Python instalado na máquina.
 
+--Abrir o programa--
+
+Clique duas vezes no arquivo "PDF_DB.bat".
+
 --Adicionar arquivos--
 
 Os arquivos são adicionados automaticamente por meio de uma busca que analisa todas as pastas, a partir de uma pasta raiz (a pasta principal, que contém todos os arquivos e outras pastas).
@@ -18,7 +22,6 @@ A categoria do arquivo .pdf é definida pelo nome das pasta onde o arquivo é ar
 
 Arquivos na pasta raiz não terão uma categoria. 
 
-
 [EN]
 
 --About the program--
@@ -26,6 +29,10 @@ Arquivos na pasta raiz não terão uma categoria.
 This program allows the visualization, access and filtering of .pdf files stored in a folder chosen by the user.
 
 To use the program, you need to have Python installed on your machine.
+
+--Open the program--
+
+Click twice on the 'PDF_DB.bat' file.
 
 --Adding files--
 
